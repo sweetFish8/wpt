@@ -485,6 +485,13 @@ class WebDriverBidiBrowserProtocolPart(BidiBrowserProtocolPart):
             except Exception as e:
                 self.logger.debug(f"Failed to remove temporary directory {path}: {e}")
 
+    async def set_file_dialog_behavior(
+        self,
+        file_dialog_behavior: Optional[Mapping[str, Any]],
+    ) -> Any:
+        return await self.webdriver.bidi_session.browser.set_file_dialog_behavior(
+            file_dialog_behavior=file_dialog_behavior)
+
 class WebDriverBidiWebExtensionsProtocolPart(WebExtensionsProtocolPart):
     def __init__(self, parent):
         super().__init__(parent)

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<title>TestDriver bidi.browser.set_file_dialog_behavior method</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js?feature=bidi"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+
+<body>
+<input id="input" type="file">
+<script>
+    const input = document.getElementById("input");
+
+    function reset_file_dialog_behavior() {
+        return test_driver.bidi.browser.set_file_dialog_behavior({
+            fileDialogBehavior: null
+        });
+    }
+
+    // Opens the file dialog of `input`. Resolves with the type of the event
+    // that `input` fires once the dialog is handled: "change" or "cancel".
+    async function show_file_dialog() {
+        const handled = new Promise(resolve => {
+            const controller = new AbortController();
+            for (const type of ["change", "cancel"]) {
+                input.addEventListener(type, () => {
+                    controller.abort();
+                    resolve(type);
+                }, {signal: controller.signal});
+            }
+        });
+        await test_driver.bless("show a file dialog", () => input.showPicker());
+        return handled;
+    }
+
+    promise_test(async (t) => {
+        const {path} =
+            await test_driver.bidi.browser.create_temporary_directory({
+                entries: [{
+                    type: "file",
+                    path: "hello.txt",
+                    data: {type: "string", value: "Hello"}
+                }]
+            });
+        t.add_cleanup(() =>
+            test_driver.bidi.browser.remove_temporary_directory({path}));
+
+        await test_driver.bidi.browser.set_file_dialog_behavior({
+            fileDialogBehavior: {type: "accept", paths: [`${path}/hello.txt`]}
+        });
+        t.add_cleanup(() => {
+            input.value = "";
+            return reset_file_dialog_behavior();
+        });
+
+        assert_equals(await show_file_dialog(), "change");
+        assert_equals(input.files.length, 1);
+        assert_equals(input.files[0].name, "hello.txt");
+        assert_equals(await input.files[0].text(), "Hello");
+    }, "Accept the file dialog with a file");
+
+    promise_test(async (t) => {
+        await test_driver.bidi.browser.set_file_dialog_behavior({
+            fileDialogBehavior: {type: "cancel"}
+        });
+        t.add_cleanup(reset_file_dialog_behavior);
+
+        assert_equals(await show_file_dialog(), "cancel");
+        assert_equals(input.files.length, 0);
+    }, "Cancel the file dialog");
+</script>
+</body>

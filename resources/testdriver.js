@@ -1253,6 +1253,25 @@
                     assertBidiIsEnabled();
                     return window.test_driver_internal.bidi.browser.remove_temporary_directory(
                         params);
+                },
+                /**
+                 * Pre-configures the behavior for file and directory picker
+                 * dialogs.
+                 * Matches the `browser.setFileDialogBehavior
+                 * <https://w3c.github.io/webdriver-bidi/#command-browser-setFileDialogBehavior>`_
+                 * WebDriver BiDi command.
+                 *
+                 * @param {object} params - Parameters for the command.
+                 * @param {null|object} params.fileDialogBehavior - Behavior to
+                 * set (`{type: "accept", paths: [...]}` or `{type: "cancel"}`),
+                 * or `null` to reset to the default behavior.
+                 * @returns {Promise<void>} Resolves when the file dialog
+                 * behavior is set.
+                 */
+                set_file_dialog_behavior: function (params) {
+                    assertBidiIsEnabled();
+                    return window.test_driver_internal.bidi.browser.set_file_dialog_behavior(
+                        params);
                 }
             }
         },
@@ -2632,6 +2651,60 @@
         },
 
         /**
+         * Pre-configures the behavior for file and directory picker dialogs.
+         *
+         * Matches the `browser.setFileDialogBehavior
+         * <https://w3c.github.io/webdriver-bidi/#command-browser-setFileDialogBehavior>`_
+         * WebDriver BiDi command.
+         *
+         * @param {null|object} options - Behavior options (`{type: "accept", paths: [...]}`
+         *                                or `{type: "cancel"}`), or `null` to reset to the
+         *                                default behavior.
+         * @returns {Promise<void>} Fulfilled after the file dialog behavior is set.
+         */
+        set_file_picker_behavior: async function(options) {
+            if (options === null) {
+                return window.test_driver_internal.set_file_picker_behavior(null);
+            }
+            if (typeof options !== "object") {
+                throw new TypeError("options must be an object or null");
+            }
+            const behavior = ("fileDialogBehavior" in options)
+                ? options.fileDialogBehavior
+                : options;
+            if (behavior === null) {
+                return window.test_driver_internal.set_file_picker_behavior(null);
+            }
+            if (typeof behavior !== "object") {
+                throw new TypeError("fileDialogBehavior must be an object or null");
+            }
+            const mode = behavior.type !== undefined ? behavior.type : behavior.action;
+            const paths = behavior.paths;
+            if (mode === "accept") {
+                if (!Array.isArray(paths) || paths.length === 0 ||
+                    !paths.every(path => typeof path === "string")) {
+                    throw new TypeError(
+                        "paths must be a non-empty array of strings when type/action is 'accept'");
+                }
+                return window.test_driver_internal.set_file_picker_behavior({
+                    type: "accept",
+                    paths: paths,
+                });
+            } else if (mode === "cancel") {
+                if (paths !== undefined) {
+                    throw new TypeError(
+                        "paths is not allowed when type/action is 'cancel'");
+                }
+                return window.test_driver_internal.set_file_picker_behavior({
+                    type: "cancel",
+                });
+            } else {
+                throw new TypeError(
+                    "type/action must be 'accept' or 'cancel'");
+            }
+        },
+
+        /**
          * Creates a temporary directory on the remote end and populates it
          * with the specified entries.
          *
@@ -2809,6 +2882,10 @@
                 remove_temporary_directory: function (params) {
                     throw new Error(
                         "bidi.browser.remove_temporary_directory is not implemented by testdriver-vendor.js");
+                },
+                set_file_dialog_behavior: function (params) {
+                    throw new Error(
+                        "bidi.browser.set_file_dialog_behavior is not implemented by testdriver-vendor.js");
                 }
             },
             speculation: {
@@ -3070,6 +3147,10 @@
 
         async get_global_privacy_control() {
             throw new Error("get_global_privacy_control() is not implemented by testdriver-vendor.js");
+        },
+
+        async set_file_picker_behavior(options) {
+            throw new Error("set_file_picker_behavior() is not implemented by testdriver-vendor.js");
         },
 
         async create_temporary_directory(params={}) {

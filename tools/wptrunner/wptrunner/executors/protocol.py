@@ -657,6 +657,13 @@ class BidiBrowserProtocolPart(ProtocolPart):
     ) -> Any:
         pass
 
+    @abstractmethod
+    async def set_file_dialog_behavior(
+        self,
+        file_dialog_behavior: Optional[Mapping[str, Any]],
+    ) -> Any:
+        pass
+
 
 class BidiEmulationProtocolPart(ProtocolPart):
     """Protocol part for emulation"""

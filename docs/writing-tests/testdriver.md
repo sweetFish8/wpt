@@ -214,6 +214,13 @@ the global scope.
 .. js:autofunction:: test_driver.bidi.browser.remove_temporary_directory
 ```
 
+### File Dialogs ###
+
+```eval_rst
+.. js:autofunction:: test_driver.set_file_picker_behavior
+.. js:autofunction:: test_driver.bidi.browser.set_file_dialog_behavior
+```
+
 
 ### Using test_driver in other browsing contexts ###
 
