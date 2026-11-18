@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<title>TestDriver bidi.browser.create_temporary_directory method</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js?feature=bidi"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+
+<script>
+    promise_test(async (t) => {
+        const result =
+            await test_driver.bidi.browser.create_temporary_directory();
+        t.add_cleanup(() =>
+            test_driver.bidi.browser.remove_temporary_directory({
+                path: result.path
+            }));
+
+        assert_equals(typeof result.path, "string");
+        assert_greater_than(result.path.length, 0);
+    }, "Create an empty temporary directory");
+
+    promise_test(async (t) => {
+        const result =
+            await test_driver.bidi.browser.create_temporary_directory({
+                entries: [
+                    {type: "directory", path: "nested"},
+                    {
+                        type: "file",
+                        path: "nested/hello.txt",
+                        data: {type: "string", value: "Hello"}
+                    }
+                ]
+            });
+        t.add_cleanup(() =>
+            test_driver.bidi.browser.remove_temporary_directory({
+                path: result.path
+            }));
+
+        assert_equals(typeof result.path, "string");
+        assert_greater_than(result.path.length, 0);
+    }, "Create a temporary directory with entries");
+</script>

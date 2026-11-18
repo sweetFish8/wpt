@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<title>TestDriver bidi.browser.remove_temporary_directory method</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js?feature=bidi"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+
+<script>
+    promise_test(async () => {
+        const {path} =
+            await test_driver.bidi.browser.create_temporary_directory({
+                entries: [{
+                    type: "file",
+                    path: "hello.txt",
+                    data: {type: "string", value: "Hello"}
+                }]
+            });
+
+        await test_driver.bidi.browser.remove_temporary_directory({path});
+
+        // The directory no longer exists, so removing it again fails.
+        await test_driver.bidi.browser.remove_temporary_directory({path}).then(
+            () => assert_unreached("Removing the directory again succeeded"),
+            () => {});
+    }, "Remove a temporary directory");
+</script>
