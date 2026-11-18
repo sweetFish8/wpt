@@ -205,6 +205,15 @@ the global scope.
 .. js:autofunction:: test_driver.set_global_privacy_control
 ```
 
+### Temporary Directories ###
+
+```eval_rst
+.. js:autofunction:: test_driver.create_temporary_directory
+.. js:autofunction:: test_driver.remove_temporary_directory
+.. js:autofunction:: test_driver.bidi.browser.create_temporary_directory
+.. js:autofunction:: test_driver.bidi.browser.remove_temporary_directory
+```
+
 
 ### Using test_driver in other browsing contexts ###
 

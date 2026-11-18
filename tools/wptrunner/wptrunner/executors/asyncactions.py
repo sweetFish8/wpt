@@ -437,6 +437,32 @@ class BidiDigitalCredentialsSetVirtualWalletBehaviorAction:
         return await self.protocol.digital_credentials.set_virtual_wallet_behavior(action, protocol, response, context)
 
 
+class BidiBrowserCreateTemporaryDirectoryAction:
+    name = "bidi.browser.create_temporary_directory"
+
+    def __init__(self, logger, protocol):
+        do_delayed_imports()
+        self.logger = logger
+        self.protocol = protocol
+
+    async def __call__(self, payload: Mapping[str, Any]) -> Any:
+        entries = payload.get("entries")
+        return await self.protocol.bidi_browser.create_temporary_directory(entries)
+
+
+class BidiBrowserRemoveTemporaryDirectoryAction:
+    name = "bidi.browser.remove_temporary_directory"
+
+    def __init__(self, logger, protocol):
+        do_delayed_imports()
+        self.logger = logger
+        self.protocol = protocol
+
+    async def __call__(self, payload: Mapping[str, Any]) -> Any:
+        path = payload["path"]
+        return await self.protocol.bidi_browser.remove_temporary_directory(path)
+
+
 async_actions = [
     BidiBluetoothHandleRequestDevicePrompt,
     BidiBluetoothSimulateAdapterAction,
@@ -458,6 +484,8 @@ async_actions = [
     BidiEmulationSetViewportMetaOverrideAction,
     BidiUserAgentClientHintsSetClientHintsOverrideAction,
     BidiPermissionsSetPermissionAction,
+    BidiBrowserCreateTemporaryDirectoryAction,
+    BidiBrowserRemoveTemporaryDirectoryAction,
     BidiSessionSubscribeAction,
     BidiSessionUnsubscribeAction,
     BidiPermissionsSetPermissionAction,
